@@ -1,9 +1,17 @@
+
 var words = [
-    'Eric',
-    'Jenn',
-    'Patrick',
-    'Maggie',
+    'eric',
+    'jenn',
+    'patrick',
+    'maggie',
 ];
+
+/*
+<script type="text/javascript" src="words.json"></script>
+<script type="text/javascript" src="app.js"></script>
+
+var words = JSON.parse(words);
+*/
 
 var hangman = [
     {from: [70,38], to: [72,46]},
@@ -52,7 +60,7 @@ function generateWord() {
         } else html += '<span class="hidden"></span>';
     }
 
-    document.querySelector('word').innerHTML = html;
+    document.querySelector('.word').innerHTML = html;
 }
 
 
@@ -79,7 +87,7 @@ document.querySelector('input').addEventListener('change', function() {
         } else if (this.value.match(/^[A-Za-z]+$/)) {
             let alreadyGuessed = false;
             for (let i = 0; i < guessed.length; i++) {
-                if (guessed[i]) === this.value.toLowerCase()) {
+                if (guessed[i] === this.value.toLowerCase()) {
                     alreadyGuessed = true;
                     break;
                 }
@@ -91,7 +99,7 @@ document.querySelector('input').addEventListener('change', function() {
                 for (let i=0 ; i < word.length ; i++) {
                     if (word[i] === this.value.toLowerCase()) {
                         wordHasLetter = true;
-                        document.querySelector('word').querySelectorAll('span')[i].innerHTML = word[i];
+                        document.querySelector('.word').querySelectorAll('span')[i].innerHTML = word[i];
                         currentWord[i] = word[i];
                     }
                 }
@@ -105,7 +113,86 @@ document.querySelector('input').addEventListener('change', function() {
                 } else fadeColor('#35c435');
             } else alert('You have already guessed that letter!');
 
+            if (currentWord.join('') === word) finish();
+        } else alert('Please guess letters only');
+        this.value = '';
+        if (guessesLeft <= 0) {
+            guessesLeft = 0;
+            for (let i=0;i<word.length;i++) {
+                if (document.querySelector('.word').querySelectorAll('span')[i].innerHTML == '') {
+                    document.querySelector('.word').querySelectorAll('span')[i].style.color = 'red';
+                    document.querySelector('.word').querySelectorAll('span')[i].innerHTML = word[i];
+                }
+            }
+
+            // fadeColor('#ff2929');
+
+            alert('You lost!');
+            document.querySelector('input').style.display = 'none';
+            document.querySelector('button').style.display = null;
+            stats.streak = 0
+            stats.scores.push(0);
+            setScore();
         }
+
+        document.querySelector('.guessesLeft').querySelector('span').innerHTML = guessesLeft;
     }
-})
+});
+
+
+function fadeColor(color) {
+    document.body.style.background = color;
+    setTimeout(function() {
+        document.body.style.background = null;
+    }, 200);
+}
+
+function finish() {
+    var wrongGuesses = (10 - guessesLeft);
+    // var rightGuesses = guessed.length - wrongGuesses;
+    var rightGuesses = word.length;
+    let score = Math.floor((rightGuesses / (wrongGuesses + rightGuesses)) * 100) || 100;
+    alert('Congratulations!  Score: ' + score + '%');
+    stats.streak++;
+    setScore();
+    fadeColor('lightblue');
+    document.querySelector('input').style.display = 'none';
+    document.querySelector('button').style.display = null;
+}
+
+// play again
+
+document.querySelector('button').addEventListener('click', generateWord);
+
+function setScore() {
+    let score = '-';
+    for (let i ; i < stats.scores.length ; i++) {
+        if(score = '-') score = 0;
+        score += stats.scores[i];
+    }
+    if (score !== '-') score = Math.floor(score / stats.scores.length) + '%';
+    document.querySelector('.streak').innerHTML = stats.streak;
+    document.querySelector('.score').innerHTML = score;
+    localStorage.hangman = JSON.stringify(stats);
+}
+
+
+function drawHangman() {
+    guessesLeft--;
+    let part = hangman[guessesLeft];
+    let hangmanLines = document.querySelector('.hangman').querySelectorAll('svg');
+    for (let i ; i < hangmanLines.length ; i++) {
+        hangmanLines[i].children[0].classList.remove('draw');
+    }
+
+    let svg;
+
+    if (part.circle == undefined) {
+        svg = '<svg><line class="draw" x1="' + part.from[0] + '%" y1="' + part.from[1] + '%" x2="' + part.to[0] + '%" y2="' + part.to[1] + '%"/></svg>';
+    } else {
+        svg = '<svg><circle class="draw" cx="' + part.circle[0] + '%" cy="' + part.circle[1] + '%" r="' + part.radius + '%"/></svg>';
+    }
+
+    document.querySelector('.hangman').innerHTML += svg;
+}
 
