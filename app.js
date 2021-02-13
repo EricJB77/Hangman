@@ -43,9 +43,9 @@ function generateWord() {
     word = words[Math.floor(Math.random() * words.length)];
     console.log(word);
 
-    Let html = '';
+    let html = '';
 
-    for (Let i = 0; i < word.length; i++) {
+    for (let i = 0; i < word.length; i++) {
         if (word[i] == ' ') {
             currentWord[i] = word[i];
             html += '<span class="hidden" style="border:none;"></span>';
@@ -53,34 +53,59 @@ function generateWord() {
     }
 
     document.querySelector('word').innerHTML = html;
+}
 
-    // check input
 
-    document.querySelector('input').addEventListener('change', function() {
-        if (this.value !== "" && this.value !== " ") {
-            if (this.value.length >1) {
-                if (this.value.length !== word.length) alert('Your guess is not the same length as the word!');
-                else if (this.value == word) {
-                    for (Let i = 0; i < word.length; i++) {
-                        document.querySelector('.word').querySelectorAll('span')[i].innerHTML = word[i];
-                    }
+// check input
 
-                    finish();                    
+document.querySelector('input').addEventListener('change', function() {
+    if (this.value !== "" && this.value !== " ") {
+        if (this.value.length >1) {
+            if (this.value.length !== word.length) alert('Your guess is not the same length as the word!');
+            else if (this.value == word) {
+                for (let i = 0; i < word.length; i++) {
+                    document.querySelector('.word').querySelectorAll('span')[i].innerHTML = word[i];
                 }
 
-                else {
-                    drawHangman();
-                    drawHangman();
-                    fadeColor('#ff2929');
-                }
+                finish();                    
+            }
 
-            } else if (this.value.match(/^[A-Za-z]+$/)) {
-                Let alreadyGuessed = false;
-                for (Let i = 0; i < guessed.length; i++) {
-                    
+            else {
+                drawHangman();
+                drawHangman();
+                fadeColor('#ff2929');
+            }
+
+        } else if (this.value.match(/^[A-Za-z]+$/)) {
+            let alreadyGuessed = false;
+            for (let i = 0; i < guessed.length; i++) {
+                if (guessed[i]) === this.value.toLowerCase()) {
+                    alreadyGuessed = true;
+                    break;
                 }
             }
-        }
-    })
 
-}
+            if (!alreadyGuessed) {
+                guessed.push(this.value.toLowerCase());
+                let wordHasLetter = false;
+                for (let i=0 ; i < word.length ; i++) {
+                    if (word[i] === this.value.toLowerCase()) {
+                        wordHasLetter = true;
+                        document.querySelector('word').querySelectorAll('span')[i].innerHTML = word[i];
+                        currentWord[i] = word[i];
+                    }
+                }
+
+                if (!wordHasLetter) {
+                    fadeColor('#ff2929');
+                    drawHangman();
+                    let guessedElm = document.querySelector('.guessed').querySelector('span');
+                    if (guessedElm.innerHTML == '') guessedElm.innerHTML = this.value.toUpperCase();
+                    else guessedElm.innerHTML += ',' + this.value.toUpperCase();
+                } else fadeColor('#35c435');
+            } else alert('You have already guessed that letter!');
+
+        }
+    }
+})
+
