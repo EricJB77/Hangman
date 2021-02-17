@@ -1,9 +1,5 @@
 
 var words = [
-    'eric',
-    'maggie',
-    'patrick',
-    'jenn',
     'america',
     'animal',
     'apple',
